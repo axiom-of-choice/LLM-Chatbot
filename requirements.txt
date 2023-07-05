@@ -12,3 +12,4 @@ langchain
 huggingface_hub
 datasets
 apache-beam
+tiktoken
