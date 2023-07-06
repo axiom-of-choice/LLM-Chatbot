@@ -13,3 +13,9 @@ huggingface_hub
 datasets
 apache-beam
 tiktoken
+
+
+#For parser
+docx
+python-docx
+unstructured
