@@ -30,3 +30,5 @@ streamlit-extras
 ##Special dependency
 protobuf==3.20.3
 
+sentence_transformers
+transformers
