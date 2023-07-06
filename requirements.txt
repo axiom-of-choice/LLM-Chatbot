@@ -13,6 +13,7 @@ huggingface_hub
 datasets
 apache-beam
 tiktoken
+pinecone-client==2.2.2
 
 
 #For parser
