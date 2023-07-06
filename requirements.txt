@@ -1,5 +1,5 @@
 # local package
--e .
+# -e .
 
 # external requirements
 click
@@ -19,3 +19,13 @@ tiktoken
 docx
 python-docx
 unstructured
+
+#Streamlit app
+streamlit
+hugchat
+streamlit-chat
+streamlit-extras
+
+##Special dependency
+protobuf==3.20.3
+
