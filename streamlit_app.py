@@ -6,7 +6,6 @@ import streamlit as st
 from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
 from streamlit_extras.add_vertical_space import add_vertical_space
-from hugchat import hugchat
 
 st.set_page_config(page_title="HugChat - An LLM-powered Streamlit app")
 
@@ -57,6 +56,15 @@ qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(
 ########### Vector DB AND MODEL ############
 
 
+if 'generated' not in st.session_state:
+    st.session_state['generated'] = ["I'm HugChat, How may I help you?"]
+else:
+    st.session_state['generated'] = st.session_state['generated']
+
+if 'past' not in st.session_state:
+    st.session_state['past'] = ['Hi!']
+else:
+    st.session_state['past'] = st.session_state['past']
 
 
 
@@ -75,12 +83,6 @@ with st.sidebar:
     add_vertical_space(5)
     st.write('Made with ❤️ by [Data Professor](<https://youtube.com/dataprofessor>)')
     
-
-if 'generated' not in st.session_state:
-    st.session_state['generated'] = ["I'm HugChat, How may I help you?"]
-
-if 'past' not in st.session_state:
-    st.session_state['past'] = ['Hi!']
     
 input_container = st.container()
 colored_header(label='', description='', color_name='blue-30')
