@@ -74,7 +74,7 @@ def loadFilesinDirectory(path: str, glob: Optional[str] = None) -> List[Document
     if glob is None:
         loader = DirectoryLoader(path = path)
     else:
-        loader = DirectoryLoader(path = path, glob = glob)
+        loader = DirectoryLoader(path = path, glob = glob, use_multithreading=True, show_progress=True)
     logger.info(f"Loading files from {path}")
     docs = loader.load()
     return docs
@@ -104,12 +104,13 @@ def insert_embedded_documents(documents: List[Document], embeddings, index: pine
     logger.info(f"Embedding {len(record_texts)} documents")
     for i, record in enumerate(tqdm(documents)):
         # first get metadata fields for this record
+        source = record.metadata['source'].split('/')[-1]
         if len(metadata_dict)>0:
             metadata = metadata_dict
         else:
             metadata = {
             'id': uuid4().hex,
-            'source': record.metadata['source'],
+            'source': source,
             }
         # now we create chunks from the record text
         record_texts = text_splitter.split_text(record.page_content)
@@ -143,7 +144,7 @@ def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
-    logger.info('making final data set from raw data')
+    logger.info('Making final data set from raw data')
     
     documents = loadFilesinDirectory(path=input_filepath)
     embeddings = HuggingFaceEmbeddings(model_name = embeddings_model_name )
