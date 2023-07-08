@@ -33,3 +33,8 @@ protobuf==3.20.3
 sentence_transformers
 transformers
 openai==0.27.8
+
+#Parse cpu
+pypdf
+faiss-cpu
+jq

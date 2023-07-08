@@ -26,6 +26,12 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
+#Format PDF and JSON
+from langchain.document_loaders import PyPDFLoader
+from langchain.document_loaders import JSONLoader
+from langchain.document_loaders.csv_loader import CSVLoader
+import pandas as pd
+
 log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(level=logging.INFO, format=log_fmt)
 logger = logging.getLogger(__name__)
@@ -79,7 +85,40 @@ def loadFilesinDirectory(path: str, glob: Optional[str] = None) -> List[Document
     docs = loader.load()
     return docs
 
+def loadPDFs(path: str) -> List[Document]:
+    docs = []
+    for file in os.listdir(path):
+        if file.endswith(".pdf"):
+            print(os.path.join(path, file))
+            loader = PyPDFLoader(os.path.join(path, file))
+            pages = loader.load_and_split()
+            docs.extend(pages)
+    return docs
+
 # docs = loadFilesinDirectory(path)
+
+def load_JSONL(path: str) -> List[Document]:
+    docs = []
+    for file in os.listdir(path):
+        if file.endswith(".json"):
+            print(os.path.join(path, file))
+            loader = JSONLoader(os.path.join(path, file), jq_schema='.flavor_text_entries[].flavor_text')
+            pages = loader.load()
+            docs.extend(pages)
+    return docs
+
+def load_CSV(path: str) -> List[Document]:
+    docs = []
+    for file in os.listdir(path):
+        if file.endswith(".csv"):
+            pth = os.path.join(path, file)
+            print(pth)
+            header = list(pd.read_csv(pth, nrows=1))
+            loader = CSVLoader(pth,
+                               csv_args={'fieldnames': header})
+            pages = loader.load()
+            docs.extend(pages)
+    return docs
 
 def embed_documents_batch(docs: List[Document]) -> List[Document]:
     embeded_docs = []
@@ -105,12 +144,13 @@ def insert_embedded_documents(documents: List[Document], embeddings, index: pine
     for i, record in enumerate(tqdm(documents)):
         # first get metadata fields for this record
         source = record.metadata['source'].split('/')[-1]
+        page = record.metadata.get('page', '')
         if len(metadata_dict)>0:
             metadata = metadata_dict
         else:
             metadata = {
             'id': uuid4().hex,
-            'source': source,
+            'source': source + " page: " + str(page),
             }
         # now we create chunks from the record text
         record_texts = text_splitter.split_text(record.page_content)
@@ -140,15 +180,21 @@ def insert_embedded_documents(documents: List[Document], embeddings, index: pine
 @click.option('--output_filepath', type=click.Path(), default=DATA_DIR)
 @click.option('--index_name', type=str, default=PINECONE_INDEX_NAME)
 @click.option('--embeddings_model_name', type=str, default=EMBEDDING_MODEL_NAME)
-def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str):
+@click.option('--glob', type=str, default=None)
+def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str, glob: str):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
+    glob = "**/*.@(txt|xml)"
     logger.info('Making final data set from raw data')
-    
-    documents = loadFilesinDirectory(path=input_filepath)
-    embeddings = HuggingFaceEmbeddings(model_name = embeddings_model_name )
+    documents = loadFilesinDirectory(path=input_filepath, glob=glob)
+    print(len(documents))
+    documents.extend(loadPDFs(path=input_filepath))
+    documents.extend(load_JSONL(path=input_filepath))
+    documents.extend(load_CSV(path=input_filepath))
+    embeddings = HuggingFaceEmbeddings(model_name = embeddings_model_name)
     index = connect_index(index_name)
+    
     
     insert_embedded_documents(documents=documents, embeddings=embeddings, index=index)
 
