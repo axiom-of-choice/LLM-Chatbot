@@ -17,7 +17,10 @@ import tiktoken
 
 import pinecone
 
-from config.config import BASE_DIR, DATA_DIR, EMBEDDING_MODEL_NAME, PINECONE_INDEX_NAME
+from config.config import BASE_DIR, DATA_DIR, EMBEDDING_MODEL_NAME, PINECONE_INDEX_NAME, GLOB
+#Recursive searching files
+import glob
+
 
 load_dotenv()
 
@@ -27,7 +30,7 @@ from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
 #Format PDF and JSON
-from langchain.document_loaders import PyPDFLoader
+from langchain.document_loaders import PyPDFLoader, PyPDFDirectoryLoader
 from langchain.document_loaders import JSONLoader
 from langchain.document_loaders.csv_loader import CSVLoader
 import pandas as pd
@@ -75,49 +78,60 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 
 
-
 def loadFilesinDirectory(path: str, glob: Optional[str] = None) -> List[Document]:
     if glob is None:
         loader = DirectoryLoader(path = path)
+        logger.info(f"Loading files from {path} withhout glob")
     else:
-        loader = DirectoryLoader(path = path, glob = glob, use_multithreading=True, show_progress=True)
-    logger.info(f"Loading files from {path}")
+        loader = DirectoryLoader(path = path, loader_kwargs={"glob":glob} , use_multithreading=True, show_progress=True)
+        logger.info(f"Loading files from {path} with glob {glob}")
     docs = loader.load()
+    logger.info(f"Loaded {len(docs)} files")
     return docs
 
-def loadPDFs(path: str) -> List[Document]:
-    docs = []
-    for file in os.listdir(path):
-        if file.endswith(".pdf"):
-            print(os.path.join(path, file))
-            loader = PyPDFLoader(os.path.join(path, file))
-            pages = loader.load_and_split()
-            docs.extend(pages)
+def loadPDFs(path: str, glob: Optional[str] = None) -> List[Document]:
+    if glob is None:
+        loader = PyPDFDirectoryLoader(path=path)
+        logger.info(f"Loading PDFs from {path} without glob")
+    else:
+        loader = PyPDFDirectoryLoader(path=path, glob=glob, recursive=True)
+        logger.info(f"Loading PDFs from {path} with glob {glob}")
+    #docs = []
+    #for file in os.listdir(path):
+    #    if file.endswith(".pdf"):
+    #        print(os.path.join(path, file))
+    #        loader = PyPDFLoader(os.path.join(path, file))
+    #        pages = loader.load_and_split()
+    #        docs.extend(pages)
+    docs = loader.load()
+    logger.info(f"Loaded {len(docs)} PDFs")
     return docs
 
 # docs = loadFilesinDirectory(path)
 
 def load_JSONL(path: str) -> List[Document]:
     docs = []
-    for file in os.listdir(path):
-        if file.endswith(".json"):
-            print(os.path.join(path, file))
-            loader = JSONLoader(os.path.join(path, file), jq_schema='.flavor_text_entries[].flavor_text')
-            pages = loader.load()
-            docs.extend(pages)
+    files = glob.iglob(str(path) + '/**/*.json', recursive=True)
+    for file in files:
+        print(os.path.join(path, file))
+        loader = JSONLoader(os.path.join(path, file), jq_schema='.flavor_text_entries[].flavor_text')
+        pages = loader.load()
+        docs.extend(pages)
+    logger.info(f"Loaded {len(docs)} JSON")
     return docs
 
 def load_CSV(path: str) -> List[Document]:
     docs = []
-    for file in os.listdir(path):
-        if file.endswith(".csv"):
-            pth = os.path.join(path, file)
-            print(pth)
-            header = list(pd.read_csv(pth, nrows=1))
-            loader = CSVLoader(pth,
-                               csv_args={'fieldnames': header})
-            pages = loader.load()
-            docs.extend(pages)
+    files = glob.iglob(str(path) + '/**/*.csv', recursive=True)
+    for file in files:
+        pth = os.path.join(path, file)
+        print(pth)
+        header = list(pd.read_csv(pth, nrows=1))
+        loader = CSVLoader(pth,
+                           csv_args={'fieldnames': header})
+        pages = loader.load()
+        docs.extend(pages)
+    logger.info(f"Loaded {len(docs)} CSV")
     return docs
 
 def embed_documents_batch(docs: List[Document]) -> List[Document]:
@@ -144,13 +158,14 @@ def insert_embedded_documents(documents: List[Document], embeddings, index: pine
     for i, record in enumerate(tqdm(documents)):
         # first get metadata fields for this record
         source = record.metadata['source'].split('/')[-1]
-        page = record.metadata.get('page', '')
+        page = str(record.metadata.get('page'))
         if len(metadata_dict)>0:
             metadata = metadata_dict
         else:
             metadata = {
             'id': uuid4().hex,
-            'source': source + " page: " + str(page),
+            'source': source,
+            'page': page
             }
         # now we create chunks from the record text
         record_texts = text_splitter.split_text(record.page_content)
@@ -180,13 +195,14 @@ def insert_embedded_documents(documents: List[Document], embeddings, index: pine
 @click.option('--output_filepath', type=click.Path(), default=DATA_DIR)
 @click.option('--index_name', type=str, default=PINECONE_INDEX_NAME)
 @click.option('--embeddings_model_name', type=str, default=EMBEDDING_MODEL_NAME)
-@click.option('--glob', type=str, default=None)
-def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str, glob: str):
+# @click.option('--glob', type=str, default=None)
+def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str, glob: str = GLOB):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
-    glob = "**/*.@(txt|xml)"
     logger.info('Making final data set from raw data')
+    logger.info(f"Using {embeddings_model_name} to embed documents")
+    logger.info(f"Using {index_name} to connect to Pinecone index")
     documents = loadFilesinDirectory(path=input_filepath, glob=glob)
     print(len(documents))
     documents.extend(loadPDFs(path=input_filepath))
