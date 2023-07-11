@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.embeddings import CohereEmbeddings
 
 from langchain.schema import Document
 from langchain.document_loaders import DirectoryLoader
@@ -17,7 +17,7 @@ import tiktoken
 
 import pinecone
 
-from config.config import BASE_DIR, DATA_DIR, EMBEDDING_MODEL_NAME, PINECONE_INDEX_NAME, GLOB
+from config.config import *
 #Recursive searching files
 import glob
 
@@ -208,7 +208,7 @@ def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_
     documents.extend(loadPDFs(path=input_filepath))
     documents.extend(load_JSONL(path=input_filepath))
     documents.extend(load_CSV(path=input_filepath))
-    embeddings = HuggingFaceEmbeddings(model_name = embeddings_model_name)
+    embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
     index = connect_index(index_name)
     
     
