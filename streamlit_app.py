@@ -75,13 +75,13 @@ with st.sidebar:
     ## About
     This app is an LLM-powered chatbot built using:
     - [Streamlit](<https://streamlit.io/>)
-    - [HugChat](<https://github.com/Soulter/hugging-chat-api>)
-    - [Open AI Model]) LLM model
-    
+    - [Pinecone Vector Database](<https://www.pinecone.io/>)
+    - [Hugging Face Embeddings (English Only) embeddings](<https://huggingface.co/>)
+    - Open AI gpt-3.5 turbo for Gen QA
     💡 Note: No API key required!
     ''')
     add_vertical_space(5)
-    st.write('Made with ❤️ by [Data Professor](<https://youtube.com/dataprofessor>)')
+    st.write('Made with ❤️ by [Isaac Hernandez Garcia](https://www.linkedin.com/in/isaac-hernandez-garcia-9905/)')
     
     
 input_container = st.container()
