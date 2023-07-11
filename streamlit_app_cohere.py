@@ -16,24 +16,18 @@ from langchain.embeddings import HuggingFaceEmbeddings
 import pinecone
 from langchain.vectorstores import Pinecone
 from langchain.prompts import PromptTemplate
-from config.config import BASE_DIR, DATA_DIR, EMBEDDING_MODEL_NAME, PINECONE_INDEX_NAME
+from config.config import BASE_DIR, DATA_DIR, EMBEDDING_MODEL_NAME, PINECONE_INDEX_NAME, COHERE_API_KEY, COHERE_MODEL_NAME, PINECONE_API_KEY, PINECONE_ENV, OPENAI_API_KEY
 from src.data.parser import connect_index
 from langchain.chains import RetrievalQAWithSourcesChain
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import CohereEmbeddings
 
 
-# Save it into pinecone
-PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
-PINECONE_ENV = os.environ.get("PINECONE_ENVIRONMENT", "us-west4-gcp-free")
-OPENAI_API_KEY = os.environ.get("OPEN_AI_KEY")
-COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
-
 load_dotenv()
 
 
 index = connect_index(PINECONE_INDEX_NAME,PINECONE_API_KEY, PINECONE_ENV)
-embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY)
+embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
 vectorstore = Pinecone(index, embeddings.embed_query, 'text')
 
 

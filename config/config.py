@@ -13,6 +13,7 @@ OPENAI_API_KEY = os.environ.get("OPEN_AI_KEY")
 GLOB = os.environ.get("GLOB", None)
 
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
+COHERE_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
 
 if __name__ == '__main__':
     print(BASE_DIR)
