@@ -1,5 +1,5 @@
 # local package
--e .
+# -e .
 
 # external requirements
 click
@@ -13,9 +13,31 @@ huggingface_hub
 datasets
 apache-beam
 tiktoken
+pinecone-client==2.2.2
 
 
 #For parser
 docx
 python-docx
 unstructured
+
+#Streamlit app
+streamlit
+hugchat
+streamlit-chat
+streamlit-extras
+
+##Special dependency
+protobuf==3.20.3
+
+sentence_transformers
+transformers
+openai==0.27.8
+
+#Parse cpu
+pypdf
+faiss-cpu
+jq
+
+# Cohere
+cohere==4.12.0
