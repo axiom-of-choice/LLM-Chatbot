@@ -38,3 +38,6 @@ openai==0.27.8
 pypdf
 faiss-cpu
 jq
+
+# Cohere
+cohere==4.12.0
