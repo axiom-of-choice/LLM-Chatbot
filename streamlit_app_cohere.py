@@ -39,7 +39,7 @@ load_dotenv()
 index = connect_index(PINECONE_INDEX_NAME,PINECONE_API_KEY, PINECONE_ENV)
 embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
 vectorstore = Pinecone(index, embeddings.embed_query, 'text')
-temp_data = os.path.join(DATA_DIR, 'tmp')
+temp_data = os.path.join(DATA_DIR, 'tmp/')
 
 
 
