@@ -18,15 +18,12 @@ import tiktoken
 import pinecone
 
 from config.config import *
+
 #Recursive searching files
 import glob
 
-
-load_dotenv()
-
+#Click oprtions and env options
 import click
-import logging
-from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
 #Format PDF and JSON
@@ -35,14 +32,15 @@ from langchain.document_loaders import JSONLoader
 from langchain.document_loaders.csv_loader import CSVLoader
 import pandas as pd
 
-log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(level=logging.INFO, format=log_fmt)
+# Utils and logging
+from src.utils import connect_index
+import logging
+from settings import logging_config
+import logging.config
+logging.config.dictConfig(logging_config)
 logger = logging.getLogger(__name__)
 
-
-PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
-PINECONE_ENV = os.getenv('PINECONE_ENV')
-
+load_dotenv()
 
 def getText_docx(file:Document) -> str:
     content = []
@@ -58,11 +56,9 @@ def writeText(content:str, filename: str, base_path:Optional[str]=DATA_DIR):
     return f'File {filename} written in {write_dir}'
 
 
-
-tokenizer = tiktoken.get_encoding('cl100k_base')
-
 # create the length function
 def tiktoken_len(text:str) -> int:
+    tokenizer = tiktoken.get_encoding('cl100k_base')
     tokens = tokenizer.encode(
         text,
         disallowed_special=()
@@ -107,7 +103,6 @@ def loadPDFs(path: str, glob: Optional[str] = None) -> List[Document]:
     logger.info(f"Loaded {len(docs)} PDFs")
     return docs
 
-# docs = loadFilesinDirectory(path)
 
 def load_JSONL(path: str) -> List[Document]:
     docs = []
@@ -135,17 +130,12 @@ def load_CSV(path: str) -> List[Document]:
     return docs
 
 def embed_documents_batch(docs: List[Document]) -> List[Document]:
+    embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
     embeded_docs = []
     logger.info(f"Embedding {len(docs)} documents")
     for doc in tqdm(docs):
         embeded_docs.append(embeddings.embed_documents(doc.page_content))
     return embeded_docs
-
-def connect_index(index_name: str, API_KEY:str = PINECONE_API_KEY, ENV:str = PINECONE_ENV) -> pinecone.Index:
-    pinecone.init(api_key=API_KEY, environment=ENV)
-    index = pinecone.Index(index_name)
-    logger.info(f"Connected to Pinecone index {index_name}")
-    return index
 
 def insert_embedded_documents(documents: List[Document], embeddings, index: pinecone.Index, batch_limit: int =100, **metadata_dict: Optional[Dict[str, Any]]): 
     batch_limit = 100
@@ -190,13 +180,7 @@ def insert_embedded_documents(documents: List[Document], embeddings, index: pine
         index.upsert(vectors=zip(ids, embeds, metadatas))
         
         
-@click.command()
-@click.option('--input_filepath', type=click.Path(exists=True), default=DATA_DIR)
-@click.option('--output_filepath', type=click.Path(), default=DATA_DIR)
-@click.option('--index_name', type=str, default=PINECONE_INDEX_NAME)
-@click.option('--embeddings_model_name', type=str, default=EMBEDDING_MODEL_NAME)
-# @click.option('--glob', type=str, default=None)
-def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str, glob: str = GLOB):
+def parse(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str, glob: str = GLOB):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
@@ -210,17 +194,24 @@ def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_
     documents.extend(load_CSV(path=input_filepath))
     embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
     index = connect_index(index_name)
-    
-    
     insert_embedded_documents(documents=documents, embeddings=embeddings, index=index)
+    
 
+@click.command()
+@click.option('--input_filepath', type=click.Path(exists=True), default=DATA_DIR)
+@click.option('--output_filepath', type=click.Path(), default=DATA_DIR)
+@click.option('--index_name', type=str, default=PINECONE_INDEX_NAME)
+@click.option('--embeddings_model_name', type=str, default=EMBEDDING_MODEL_NAME)
+@click.option('--glob', type=str, default=None)
+def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str, glob: str = GLOB):
+    parse(input_filepath=input_filepath, output_filepath=output_filepath, index_name=index_name, embeddings_model_name=embeddings_model_name, glob=glob)
 
         
 if __name__ == '__main__':
-
+    logger.info("Starting embedding process")
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
-    main()
+    parse()
 
 
