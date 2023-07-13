@@ -49,6 +49,19 @@ from autentication.authlib.auth import auth, authenticated, requires_auth
 from autentication.authlib.common import trace_activity
 
 user = auth(sidebar=True, show_msgs=True)
+with st.sidebar:
+        st.title('🤗💬 InsightFinder App')
+        st.markdown('''
+        ## About
+        This app is an LLM-powered chatbot built using:
+        - [Streamlit](<https://streamlit.io/>)
+        - [Pinecone Vector Database](<https://www.pinecone.io/>)
+        - [Cohere Multi lingual Embeddings](<https://cohere.ai/>)
+        - Open AI gpt-3.5 turbo for Gen QA
+        💡 Note: No API key required!
+        ''')
+        add_vertical_space(5)
+        st.write('Made with ❤️ by [Isaac Hernandez Garcia](https://www.linkedin.com/in/isaac-hernandez-garcia-9905/)')
 
 st.title('Insight Finder App')
 if not authenticated():
@@ -122,20 +135,6 @@ else:
             os.remove(f)
         logger.info(f"Files removed from {temp_data}")
 
-
-    with st.sidebar:
-        st.title('🤗💬 InsightFinder App')
-        st.markdown('''
-        ## About
-        This app is an LLM-powered chatbot built using:
-        - [Streamlit](<https://streamlit.io/>)
-        - [Pinecone Vector Database](<https://www.pinecone.io/>)
-        - [Cohere Multi lingual Embeddings](<https://cohere.ai/>)
-        - Open AI gpt-3.5 turbo for Gen QA
-        💡 Note: No API key required!
-        ''')
-        add_vertical_space(5)
-        st.write('Made with ❤️ by [Isaac Hernandez Garcia](https://www.linkedin.com/in/isaac-hernandez-garcia-9905/)')
 
 
     input_container = st.container()
