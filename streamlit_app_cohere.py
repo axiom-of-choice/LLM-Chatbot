@@ -50,7 +50,7 @@ from autentication.authlib.common import trace_activity
 
 user = auth(sidebar=True, show_msgs=True)
 
-st.title('Test App')
+st.title('Insight Finder App')
 if not authenticated():
     st.warning(f'Please log in to access the app')
 #############
