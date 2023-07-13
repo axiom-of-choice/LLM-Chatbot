@@ -7,7 +7,7 @@ from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
 from streamlit_extras.add_vertical_space import add_vertical_space
 
-st.set_page_config(page_title="HugChat - An LLM-powered Streamlit app")
+st.set_page_config(page_title="InsightFinder - An LLM-powered Streamlit app")
 
 ########### Vector DB AND MODEL ############
 import os
@@ -104,7 +104,7 @@ with st.form("my-form", clear_on_submit=True):
 
 
 with st.sidebar:
-    st.title('🤗💬 HugChat App')
+    st.title('🤗💬 InsightFinder App')
     st.markdown('''
     ## About
     This app is an LLM-powered chatbot built using:
