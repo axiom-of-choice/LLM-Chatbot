@@ -2,6 +2,8 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 load_dotenv()
+import logging
+import sys
 
 BASE_DIR = Path(__file__).parent.parent.absolute()
 DATA_DIR = Path(BASE_DIR, 'data/')
@@ -11,9 +13,11 @@ PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 PINECONE_ENV = os.environ.get("PINECONE_ENVIRONMENT", "us-west4-gcp-free")
 OPENAI_API_KEY = os.environ.get("OPEN_AI_KEY")
 GLOB = os.environ.get("GLOB", None)
+LOGS_DIR = Path(BASE_DIR, "logs")
 
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
 COHERE_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
+
 
 if __name__ == '__main__':
     print(BASE_DIR)

@@ -7,7 +7,7 @@ from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
 from streamlit_extras.add_vertical_space import add_vertical_space
 
-st.set_page_config(page_title="HugChat - An LLM-powered Streamlit app")
+st.set_page_config(page_title="InsightFinder - An LLM-powered Streamlit app")
 
 ########### Vector DB AND MODEL ############
 import os
@@ -16,12 +16,22 @@ from langchain.embeddings import HuggingFaceEmbeddings
 import pinecone
 from langchain.vectorstores import Pinecone
 from langchain.prompts import PromptTemplate
-from config.config import BASE_DIR, DATA_DIR, EMBEDDING_MODEL_NAME, PINECONE_INDEX_NAME, COHERE_API_KEY, COHERE_MODEL_NAME, PINECONE_API_KEY, PINECONE_ENV, OPENAI_API_KEY
-from src.data.parser import connect_index
+from config.config import *
+from src.data.cohere_parser import parse
+from src.utils import connect_index
 from langchain.chains import RetrievalQAWithSourcesChain
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import CohereEmbeddings
+import glob
+import traceback
+from random import randint
 
+
+import logging
+from settings import logging_config
+import logging.config
+logging.config.dictConfig(logging_config)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -29,6 +39,7 @@ load_dotenv()
 index = connect_index(PINECONE_INDEX_NAME,PINECONE_API_KEY, PINECONE_ENV)
 embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
 vectorstore = Pinecone(index, embeddings.embed_query, 'text')
+temp_data = os.path.join(DATA_DIR, 'tmp/')
 
 
 
@@ -49,8 +60,14 @@ qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(
 ########### Vector DB AND MODEL ############
 
 
+###SESSION STATE###
+if 'widget_key' not in st.session_state:
+    st.session_state['widget_key'] = randint(0, 1000000)
+else:
+    st.session_state['widget_key'] = st.session_state['widget_key']
+
 if 'generated' not in st.session_state:
-    st.session_state['generated'] = ["I'm HugChat, How may I help you?"]
+    st.session_state['generated'] = ["I'm a ChatBot that only can answers questions, ask me anything!"]
 else:
     st.session_state['generated'] = st.session_state['generated']
 
@@ -59,11 +76,35 @@ if 'past' not in st.session_state:
 else:
     st.session_state['past'] = st.session_state['past']
 
-
+with st.form("my-form", clear_on_submit=True):
+    files = st.file_uploader("Choose a file to upload and ask a question about it:", key=st.session_state['widget_key'], accept_multiple_files=True, kwargs={'clear_on_submit': True})
+    if len(files) >0:
+        for uploaded_file in files:
+            if uploaded_file is not None:
+        # To read file as bytes:
+                bytes_data = uploaded_file.read()
+                # st.write("filename:", uploaded_file.name)
+                logger.info(f"Writing: {uploaded_file.name}")
+                with open(f"{temp_data}/{uploaded_file.name}", 'wb') as f:
+                    f.write(bytes_data)
+    logger.info(f"Parsing files {files}")
+    submitted = st.form_submit_button("submit")
+    if submitted:
+        st.session_state['widget_key'] = str(randint(1000, 100000000))
+    try:
+        parse(temp_data, output_filepath= None, index_name= PINECONE_INDEX_NAME, embeddings_model_name= COHERE_MODEL_NAME, glob=GLOB)
+    except:
+        logger.error("Error parsing files")
+        logger.error(traceback.format_exc())
+    files = []
+    files = glob.glob(f'{temp_data}/*')
+    for f in files:
+        os.remove(f)
+    logger.info(f"Files removed from {temp_data}")
 
 
 with st.sidebar:
-    st.title('🤗💬 HugChat App')
+    st.title('🤗💬 InsightFinder App')
     st.markdown('''
     ## About
     This app is an LLM-powered chatbot built using:
