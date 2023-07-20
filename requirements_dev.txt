@@ -1,0 +1,53 @@
+# local package
+# -e .
+
+# external requirements
+click
+Sphinx
+coverage
+# awscli
+flake8
+python-dotenv>=0.5.1
+langchain
+huggingface_hub
+datasets
+apache-beam
+tiktoken
+pinecone-client==2.2.2
+
+
+#For parser
+docx
+python-docx
+unstructured
+
+#Streamlit app
+streamlit
+hugchat
+streamlit-chat
+streamlit-extras
+
+##Special dependency
+protobuf==3.20.3
+
+sentence_transformers
+transformers
+openai==0.27.8
+
+#Parse cpu
+pypdf
+faiss-cpu
+jq
+
+# Cohere
+cohere==4.12.0
+
+pyairtable==1.0.0rc3
+streamlit==1.7.0
+debugpy==1.3.0
+pycryptodome==3.10.1
+python-dotenv==0.19.0
+extra-streamlit-components==0.1.53
+altair==4
+click==8
+pre-commit
