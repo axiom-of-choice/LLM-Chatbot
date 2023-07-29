@@ -29,6 +29,7 @@ def admin_console(user):
     if user["su"] == 1:
         st.write("Welcome to the admin console.")
         selected_datasource = st.selectbox("Select a Datasoruce", DATA_SOURCE.keys())
-        DATA_SOURCE[selected_datasource](user)
+        obj = DATA_SOURCE[selected_datasource]
+        obj().interface()
     else:
         st.write("You are not authorized to view this page.")

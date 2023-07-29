@@ -20,6 +20,7 @@ PINECONE_ENV = os.environ.get("PINECONE_ENVIRONMENT", "us-west4-gcp-free")
 OPENAI_API_KEY = os.environ.get("OPEN_AI_KEY")
 GLOB = os.environ.get("GLOB", None)
 LOGS_DIR = Path(BASE_DIR, "logs")
+BUCKET_NAME = os.environ.get("BUCKET_NAME")
 
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
 COHERE_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
