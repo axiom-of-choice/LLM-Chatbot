@@ -26,12 +26,13 @@ from dotenv import load_dotenv
 from langchain.vectorstores import Pinecone
 from config.config import *
 from src.data.cohere_parser import parse
-from src.utils import connect_index
+
+# from src.utils import connect_index
+from src.utils import init_pinecone_index
 from langchain.chains import RetrievalQAWithSourcesChain
 
 # from langchain.chat_models import ChatOpenAI
 # from langchain.llms.openai import BaseOpenAI
-from langchain.embeddings import CohereEmbeddings
 import glob
 import traceback
 from random import randint
@@ -45,6 +46,7 @@ logging.config.dictConfig(logging_config)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
+init_pinecone_index()
 # from config.config import AVAILABLE_LLMS
 
 
@@ -53,16 +55,14 @@ def main_page(user):
     # st.success(f'`{username}` is authenticated')
     cf = user.get("cf", [1, 2, 3, 4, 5])
     logger.info(f"User: {username}, cf: {cf}")
-    index = connect_index(PINECONE_INDEX_NAME, PINECONE_API_KEY, PINECONE_ENV)
-    embeddings = CohereEmbeddings(
-        cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME
-    )
+    # index = connect_index(PINECONE_INDEX_NAME, PINECONE_API_KEY, PINECONE_ENV)
+
+    selected_embeddings = st.sidebar.selectbox("Select embeddings to use", AVAILABLE_EMBEDDINGS.keys())
+    embeddings = AVAILABLE_EMBEDDINGS[selected_embeddings]
     # vectorstore = Pinecone(index, embeddings.embed_query, 'text')
     vectorstore = Pinecone.from_existing_index(PINECONE_INDEX_NAME, embeddings, "text")
     temp_data = os.path.join(DATA_DIR, "tmp/")
-    selected_model = st.sidebar.selectbox(
-        "Select a Model to use", AVAILABLE_LLMS.keys()
-    )
+    selected_model = st.sidebar.selectbox("Select a Model to use", AVAILABLE_LLMS.keys())
     # completion llm
     # llm = BaseOpenAI(
     #     openai_api_key=OPENAI_API_KEY,
@@ -82,9 +82,7 @@ def main_page(user):
     else:
         st.session_state["widget_key"] = st.session_state["widget_key"]
     if "generated" not in st.session_state:
-        st.session_state["generated"] = [
-            "I'm a ChatBot that only can answers questions, ask me anything!"
-        ]
+        st.session_state["generated"] = ["I'm a ChatBot that only can answers questions, ask me anything!"]
     else:
         st.session_state["generated"] = st.session_state["generated"]
     if "past" not in st.session_state:

@@ -10,6 +10,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from langchain.schema import Document
 from langchain.document_loaders import DirectoryLoader
+from langchain.embeddings.base import Embeddings
 
 import tiktoken
 
@@ -113,9 +114,7 @@ def load_JSONL(path: str) -> List[Document]:
     files = glob.iglob(str(path) + "/**/*.json", recursive=True)
     for file in files:
         print(os.path.join(path, file))
-        loader = JSONLoader(
-            os.path.join(path, file), jq_schema=".flavor_text_entries[].flavor_text"
-        )
+        loader = JSONLoader(os.path.join(path, file), jq_schema=".flavor_text_entries[].flavor_text")
         pages = loader.load()
         docs.extend(pages)
     logger.info(f"Loaded {len(docs)} JSON")
@@ -137,9 +136,7 @@ def load_CSV(path: str) -> List[Document]:
 
 
 def embed_documents_batch(docs: List[Document]) -> List[Document]:
-    embeddings = CohereEmbeddings(
-        cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME
-    )
+    embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
     embeded_docs = []
     logger.info(f"Embedding {len(docs)} documents")
     for doc in tqdm(docs):
@@ -149,7 +146,7 @@ def embed_documents_batch(docs: List[Document]) -> List[Document]:
 
 def insert_embedded_documents(
     documents: List[Document],
-    embeddings: Any,
+    embeddings: Embeddings,
     index: pinecone.Index,
     batch_limit: int = 100,
     data_source: str = "Local",
@@ -178,10 +175,7 @@ def insert_embedded_documents(
         # now we create chunks from the record text
         record_texts = text_splitter.split_text(record.page_content)
         # create individual metadata dicts for each chunk
-        record_metadatas = [
-            {"chunk": j, "text": text, **metadata}
-            for j, text in enumerate(record_texts)
-        ]
+        record_metadatas = [{"chunk": j, "text": text, **metadata} for j, text in enumerate(record_texts)]
         # # append these to current batches
         texts.extend(record_texts)
         metadatas.extend(record_metadatas)
@@ -218,22 +212,16 @@ def parse(
     documents.extend(loadPDFs(path=input_filepath))
     documents.extend(load_JSONL(path=input_filepath))
     documents.extend(load_CSV(path=input_filepath))
-    embeddings = CohereEmbeddings(
-        cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME
-    )
+    embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
     index = connect_index(index_name)
-    insert_embedded_documents(
-        documents=documents, embeddings=embeddings, index=index, data_source=data_source
-    )
+    insert_embedded_documents(documents=documents, embeddings=embeddings, index=index, data_source=data_source)
 
 
 @click.command()
 @click.option("--input_filepath", type=click.Path(exists=True), default=DATA_DIR)
 @click.option("--output_filepath", type=click.Path(), default=DATA_DIR)
 @click.option("--index_name", type=str, default=PINECONE_INDEX_NAME)
-@click.option(
-    "--embeddings_model_name", type=str, default=AVAILABLE_EMBEDDINGS["Cohere"]
-)
+@click.option("--embeddings_model_name", type=str, default=AVAILABLE_EMBEDDINGS["Cohere"])
 @click.option("--glob", type=str, default=None)
 def main(
     input_filepath: str,
@@ -256,4 +244,10 @@ if __name__ == "__main__":
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
-    parse()
+    parse(
+        input_filepath=DATA_DIR,
+        output_filepath=DATA_DIR,
+        index_name=PINECONE_INDEX_NAME,
+        embeddings_model_name=AVAILABLE_EMBEDDINGS["stsb-xlm-r-multilingual"],
+        glob=GLOB,
+    )

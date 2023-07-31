@@ -28,21 +28,13 @@ COHERE_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
 COHERE_EMBEDDING_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
 
 AVAILABLE_LLMS = {
-    "GPT 3.5 turbo": ChatOpenAI(
-        openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.0
-    ),
-    "Cohere LLM": Cohere(
-        cohere_api_key=COHERE_API_KEY, temperature=0.0, truncate="START"
-    ),
+    "GPT 3.5 turbo": ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.0),
+    "Cohere LLM": Cohere(cohere_api_key=COHERE_API_KEY, temperature=0.0, truncate="START"),
 }
 
 AVAILABLE_EMBEDDINGS = {
-    "Cohere": CohereEmbeddings(
-        cohere_api_key=COHERE_API_KEY, model=COHERE_EMBEDDING_MODEL_NAME
-    ),
-    "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(
-        model_name=HF_EMBEDDING_MODEL_NAME
-    ),
+    "Cohere": CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_EMBEDDING_MODEL_NAME),
+    "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(model_name=HF_EMBEDDING_MODEL_NAME),
 }
 
 if __name__ == "__main__":
