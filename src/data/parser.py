@@ -199,20 +199,13 @@ def insert_embedded_documents(
         index.upsert(vectors=zip(ids, embeds, metadatas))
 
 
-@click.command()
-@click.option("--input_filepath", type=click.Path(exists=True), default=DATA_DIR)
-@click.option("--output_filepath", type=click.Path(), default=DATA_DIR)
-@click.option("--index_name", type=str, default=PINECONE_INDEX_NAME)
-@click.option(
-    "--embeddings_model_name", type=str, default=AVAILABLE_EMBEDDINGS["Cohere"]
-)
-# @click.option('--glob', type=str, default=None)
-def main(
+def parse(
     input_filepath: str,
     output_filepath: str,
     index_name: str,
     embeddings_model_name: str,
     glob: str = GLOB,
+    data_source: str = "Local",
 ):
     """Runs data processing scripts to turn raw data from (../raw) into
     cleaned data ready to be analyzed (saved in ../processed).
@@ -225,15 +218,42 @@ def main(
     documents.extend(loadPDFs(path=input_filepath))
     documents.extend(load_JSONL(path=input_filepath))
     documents.extend(load_CSV(path=input_filepath))
-    embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+    embeddings = CohereEmbeddings(
+        cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME
+    )
     index = connect_index(index_name)
+    insert_embedded_documents(
+        documents=documents, embeddings=embeddings, index=index, data_source=data_source
+    )
 
-    insert_embedded_documents(documents=documents, embeddings=embeddings, index=index)
+
+@click.command()
+@click.option("--input_filepath", type=click.Path(exists=True), default=DATA_DIR)
+@click.option("--output_filepath", type=click.Path(), default=DATA_DIR)
+@click.option("--index_name", type=str, default=PINECONE_INDEX_NAME)
+@click.option(
+    "--embeddings_model_name", type=str, default=AVAILABLE_EMBEDDINGS["Cohere"]
+)
+@click.option("--glob", type=str, default=None)
+def main(
+    input_filepath: str,
+    output_filepath: str,
+    index_name: str,
+    embeddings_model_name: str,
+    glob: str = GLOB,
+):
+    parse(
+        input_filepath=input_filepath,
+        output_filepath=output_filepath,
+        index_name=index_name,
+        embeddings_model_name=embeddings_model_name,
+        glob=glob,
+    )
 
 
 if __name__ == "__main__":
-
+    logger.info("Starting embedding process")
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
-    main()
+    parse()
