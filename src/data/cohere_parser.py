@@ -4,11 +4,9 @@ from tqdm.auto import tqdm
 
 from uuid import uuid4
 from typing import List, Dict, Tuple, Optional, Any
-from dotenv import load_dotenv
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from langchain.embeddings import CohereEmbeddings
 
 from langchain.schema import Document
 from langchain.document_loaders import DirectoryLoader
@@ -151,7 +149,7 @@ def embed_documents_batch(docs: List[Document]) -> List[Document]:
 
 def insert_embedded_documents(
     documents: List[Document],
-    embeddings,
+    embeddings: Any,
     index: pinecone.Index,
     batch_limit: int = 100,
     data_source: str = "Local",
@@ -233,7 +231,9 @@ def parse(
 @click.option("--input_filepath", type=click.Path(exists=True), default=DATA_DIR)
 @click.option("--output_filepath", type=click.Path(), default=DATA_DIR)
 @click.option("--index_name", type=str, default=PINECONE_INDEX_NAME)
-@click.option("--embeddings_model_name", type=str, default=EMBEDDING_MODEL_NAME)
+@click.option(
+    "--embeddings_model_name", type=str, default=AVAILABLE_EMBEDDINGS["Cohere"]
+)
 @click.option("--glob", type=str, default=None)
 def main(
     input_filepath: str,
