@@ -9,10 +9,11 @@ import logging.config
 
 logging.config.dictConfig(logging_config)
 logger = logging.getLogger(__name__)
-from config import BACKGROUNDS_DIR, TITLE, LOGO_DIR
+from config import BACKGROUNDS_DIR, LOGO_DIR, TOML_DIR, client_config
 from random import randint
-from src.utils import set_background, set_logo
+from src.utils import set_background
 from PIL import Image
+import toml
 
 
 def upload_background():
@@ -72,7 +73,9 @@ def change_title():
             logger.debug(f"Setting title")
             if title is not None:
                 st.session_state["widget_title_key"] = title
-                TITLE = title
+                client_config["branding"]["title"] = title
+                with open(TOML_DIR, "w") as f:
+                    toml.dump(client_config, f)
                 logger.debug(f"Setted title")
                 st.write("Title set!")
 
