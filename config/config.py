@@ -9,6 +9,8 @@ from langchain.chat_models import ChatOpenAI
 from langchain.llms import Cohere, OpenAIChat
 from langchain.embeddings import CohereEmbeddings, HuggingFaceEmbeddings
 
+import toml
+
 ## TO-DO replace from langchain.chat_models import ChatOpenAI
 
 
@@ -40,8 +42,8 @@ AVAILABLE_EMBEDDINGS = {
     "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(model_name=HF_EMBEDDING_MODEL_NAME),
 }
 
-TITLE = "🤗💬 InsightFinder App"
+client_config = toml.load(os.path.join(BASE_DIR, "client_config.toml"))
+TITLE = client_config["branding"]["title"]
 
 if __name__ == "__main__":
-    print(BASE_DIR)
-    print(DATA_DIR)
+    print(client_config)

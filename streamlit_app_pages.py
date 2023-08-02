@@ -53,26 +53,33 @@ env.verify()
 from autentication.authlib.auth import auth, authenticated, requires_auth
 from autentication.authlib.common import trace_activity
 
-##PAGES
-from src.utils import set_background
+##TITLE background and logo
+import toml
+from src.utils import set_background, set_logo
 
+client_config = toml.load(os.path.join(BASE_DIR, "client_config.toml"))
+TITLE = client_config["branding"]["title"]
+set_background(BACKGROUNDS_DIR)
+set_logo(LOGO_DIR)
 
-set_background("./static/background.png")
-# page_names_to_funcs = {"Main Page": main_page, "Admin console": admin_console}
 
 user = auth(sidebar=True, show_msgs=True)
 with st.sidebar:
     st.title(TITLE)
     st.markdown(
+        # """
+        # ## About
+        # This app is an LLM-powered chatbot built using:
+        # - [Streamlit](<https://streamlit.io/>)
+        # - [Pinecone Vector Database](<https://www.pinecone.io/>)
+        # - [Cohere Multi lingual Embeddings](<https://cohere.ai/>)
+        # - Open AI gpt-3.5 turbo for Gen QA
+        # 💡 Note: No API key required!
+        # """
         """
-        ## About
-        This app is an LLM-powered chatbot built using:
-        - [Streamlit](<https://streamlit.io/>)
-        - [Pinecone Vector Database](<https://www.pinecone.io/>)
-        - [Cohere Multi lingual Embeddings](<https://cohere.ai/>)
-        - Open AI gpt-3.5 turbo for Gen QA
-        💡 Note: No API key required!
-        """
+    ## About
+    This app is an LLM-powered chatbot that answers question over a knowledge base.
+    """
     )
     add_vertical_space(5)
     st.write("Made with ❤️ by [Isaac Hernandez Garcia](https://www.linkedin.com/in/isaac-hernandez-garcia-9905/)")

@@ -58,3 +58,7 @@ pre-commit
 # AWS s3
 boto3
 Office365-REST-Python-Client==2.4.2
+
+## Utils
+opencv-python
+tomli
