@@ -16,7 +16,7 @@ from langchain.embeddings import HuggingFaceEmbeddings
 import pinecone
 from langchain.vectorstores import Pinecone
 from langchain.prompts import PromptTemplate
-from config.config import *
+from config import *
 from src.data.cohere_parser import parse
 from src.utils import connect_index
 from langchain.chains import RetrievalQAWithSourcesChain
@@ -66,9 +66,7 @@ with st.sidebar:
         """
     )
     add_vertical_space(5)
-    st.write(
-        "Made with ❤️ by [Isaac Hernandez Garcia](https://www.linkedin.com/in/isaac-hernandez-garcia-9905/)"
-    )
+    st.write("Made with ❤️ by [Isaac Hernandez Garcia](https://www.linkedin.com/in/isaac-hernandez-garcia-9905/)")
 
 st.title("Insight Finder App")
 if not authenticated():
@@ -80,16 +78,12 @@ else:
     cf = user.get("cf", False)
     logger.info(f"User: {username}, cf: {cf}")
     index = connect_index(PINECONE_INDEX_NAME, PINECONE_API_KEY, PINECONE_ENV)
-    embeddings = CohereEmbeddings(
-        cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME
-    )
+    embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
     vectorstore = Pinecone(index, embeddings.embed_query, "text")
     temp_data = os.path.join(DATA_DIR, "tmp/")
 
     # completion llm
-    llm = ChatOpenAI(
-        openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.0
-    )
+    llm = ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.0)
 
     qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(
         llm=llm, chain_type="stuff", retriever=vectorstore.as_retriever()
@@ -103,9 +97,7 @@ else:
         st.session_state["widget_key"] = st.session_state["widget_key"]
 
     if "generated" not in st.session_state:
-        st.session_state["generated"] = [
-            "I'm a ChatBot that only can answers questions, ask me anything!"
-        ]
+        st.session_state["generated"] = ["I'm a ChatBot that only can answers questions, ask me anything!"]
     else:
         st.session_state["generated"] = st.session_state["generated"]
 

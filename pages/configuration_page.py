@@ -1,17 +1,3 @@
-# streamlit_app.py
-
-# import streamlit as st
-# from st_files_connection import FilesConnection
-#
-# # Create connection object and retrieve file contents.
-# # Specify input format is a csv and to cache the result for 600 seconds.
-# conn = st.experimental_connection('s3', type=FilesConnection)
-# df = conn.read("abinveb-bucket/common.txt", input_format="text", ttl=600)
-#
-# # Print results.
-#
-# st.write(df)
-
 import streamlit as st
 
 from dotenv import load_dotenv
@@ -87,7 +73,7 @@ def change_title():
                 st.write("Title set!")
 
 
-def admin_console(user):
+def config_page(user):
     if "widget_background_key" not in st.session_state:
         st.session_state["widget_background_key"] = randint(0, 1000000)
     else:

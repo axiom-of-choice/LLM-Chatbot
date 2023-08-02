@@ -4,11 +4,9 @@ from tqdm.auto import tqdm
 
 from uuid import uuid4
 from typing import List, Dict, Tuple, Optional, Any
-from dotenv import load_dotenv
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from langchain.embeddings import CohereEmbeddings
 
 from langchain.schema import Document
 from langchain.document_loaders import DirectoryLoader
@@ -17,16 +15,16 @@ import tiktoken
 
 import pinecone
 
-from config.config import *
+from config import *
 
-#Recursive searching files
+# Recursive searching files
 import glob
 
-#Click oprtions and env options
+# Click oprtions and env options
 import click
 from dotenv import find_dotenv, load_dotenv
 
-#Format PDF and JSON
+# Format PDF and JSON
 from langchain.document_loaders import PyPDFLoader, PyPDFDirectoryLoader
 from langchain.document_loaders import JSONLoader
 from langchain.document_loaders.csv_loader import CSVLoader
@@ -37,32 +35,32 @@ from src.utils import connect_index
 import logging
 from settings import logging_config
 import logging.config
+
 logging.config.dictConfig(logging_config)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-def getText_docx(file:Document) -> str:
+
+def getText_docx(file: Document) -> str:
     content = []
     for paragraph in file.paragraphs:
         print(paragraph.text)
         content.append(paragraph.text)
-    return '\n'.join(content)
+    return "\n".join(content)
 
-def writeText(content:str, filename: str, base_path:Optional[str]=DATA_DIR):
-    write_dir = os.path.join(base_path,'raw', filename) 
-    with open(write_dir, 'w') as f:
+
+def writeText(content: str, filename: str, base_path: Optional[str] = DATA_DIR):
+    write_dir = os.path.join(base_path, "raw", filename)
+    with open(write_dir, "w") as f:
         f.write(content)
-    return f'File {filename} written in {write_dir}'
+    return f"File {filename} written in {write_dir}"
 
 
 # create the length function
-def tiktoken_len(text:str) -> int:
-    tokenizer = tiktoken.get_encoding('cl100k_base')
-    tokens = tokenizer.encode(
-        text,
-        disallowed_special=()
-    )
+def tiktoken_len(text: str) -> int:
+    tokenizer = tiktoken.get_encoding("cl100k_base")
+    tokens = tokenizer.encode(text, disallowed_special=())
     return len(tokens)
 
 
@@ -70,20 +68,26 @@ text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=600,
     chunk_overlap=20,
     length_function=tiktoken_len,
-    separators=["\n\n", "\n", " ", ""]
+    separators=["\n\n", "\n", " ", ""],
 )
 
 
 def loadFilesinDirectory(path: str, glob: Optional[str] = None) -> List[Document]:
     if glob is None:
-        loader = DirectoryLoader(path = path)
+        loader = DirectoryLoader(path=path)
         logger.info(f"Loading files from {path} withhout glob")
     else:
-        loader = DirectoryLoader(path = path, loader_kwargs={"glob":glob} , use_multithreading=True, show_progress=True)
+        loader = DirectoryLoader(
+            path=path,
+            loader_kwargs={"glob": glob},
+            use_multithreading=True,
+            show_progress=True,
+        )
         logger.info(f"Loading files from {path} with glob {glob}")
     docs = loader.load()
     logger.info(f"Loaded {len(docs)} files")
     return docs
+
 
 def loadPDFs(path: str, glob: Optional[str] = None) -> List[Document]:
     if glob is None:
@@ -92,8 +96,8 @@ def loadPDFs(path: str, glob: Optional[str] = None) -> List[Document]:
     else:
         loader = PyPDFDirectoryLoader(path=path, glob=glob, recursive=True)
         logger.info(f"Loading PDFs from {path} with glob {glob}")
-    #docs = []
-    #for file in os.listdir(path):
+    # docs = []
+    # for file in os.listdir(path):
     #    if file.endswith(".pdf"):
     #        print(os.path.join(path, file))
     #        loader = PyPDFLoader(os.path.join(path, file))
@@ -106,28 +110,29 @@ def loadPDFs(path: str, glob: Optional[str] = None) -> List[Document]:
 
 def load_JSONL(path: str) -> List[Document]:
     docs = []
-    files = glob.iglob(str(path) + '/**/*.json', recursive=True)
+    files = glob.iglob(str(path) + "/**/*.json", recursive=True)
     for file in files:
         print(os.path.join(path, file))
-        loader = JSONLoader(os.path.join(path, file), jq_schema='.flavor_text_entries[].flavor_text')
+        loader = JSONLoader(os.path.join(path, file), jq_schema=".flavor_text_entries[].flavor_text")
         pages = loader.load()
         docs.extend(pages)
     logger.info(f"Loaded {len(docs)} JSON")
     return docs
 
+
 def load_CSV(path: str) -> List[Document]:
     docs = []
-    files = glob.iglob(str(path) + '/**/*.csv', recursive=True)
+    files = glob.iglob(str(path) + "/**/*.csv", recursive=True)
     for file in files:
         pth = os.path.join(path, file)
         print(pth)
         header = list(pd.read_csv(pth, nrows=1))
-        loader = CSVLoader(pth,
-                           csv_args={'fieldnames': header})
+        loader = CSVLoader(pth, csv_args={"fieldnames": header})
         pages = loader.load()
         docs.extend(pages)
     logger.info(f"Loaded {len(docs)} CSV")
     return docs
+
 
 def embed_documents_batch(docs: List[Document]) -> List[Document]:
     embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
@@ -137,7 +142,15 @@ def embed_documents_batch(docs: List[Document]) -> List[Document]:
         embeded_docs.append(embeddings.embed_documents(doc.page_content))
     return embeded_docs
 
-def insert_embedded_documents(documents: List[Document], embeddings, index: pinecone.Index, batch_limit: int =100, **metadata_dict: Optional[Dict[str, Any]]): 
+
+def insert_embedded_documents(
+    documents: List[Document],
+    embeddings: Any,
+    index: pinecone.Index,
+    batch_limit: int = 100,
+    data_source: str = "Local",
+    **metadata_dict: Optional[Dict[str, Any]],
+) -> None:
     batch_limit = 100
 
     texts = []
@@ -147,22 +160,21 @@ def insert_embedded_documents(documents: List[Document], embeddings, index: pine
     logger.info(f"Embedding {len(record_texts)} documents")
     for i, record in enumerate(tqdm(documents)):
         # first get metadata fields for this record
-        source = record.metadata['source'].split('/')[-1]
-        page = str(record.metadata.get('page'))
-        if len(metadata_dict)>0:
+        source = record.metadata["source"].split("/")[-1]
+        page = str(record.metadata.get("page"))
+        if len(metadata_dict) > 0:
             metadata = metadata_dict
         else:
             metadata = {
-            'id': uuid4().hex,
-            'source': source,
-            'page': page
+                "id": uuid4().hex,
+                "source": source,
+                "page": page,
+                "data_source": data_source,
             }
         # now we create chunks from the record text
         record_texts = text_splitter.split_text(record.page_content)
         # create individual metadata dicts for each chunk
-        record_metadatas = [{
-                    "chunk": j, "text": text, **metadata
-                    } for j, text in enumerate(record_texts)]
+        record_metadatas = [{"chunk": j, "text": text, **metadata} for j, text in enumerate(record_texts)]
         # # append these to current batches
         texts.extend(record_texts)
         metadatas.extend(record_metadatas)
@@ -178,13 +190,20 @@ def insert_embedded_documents(documents: List[Document], embeddings, index: pine
         ids = [str(uuid4()) for _ in range(len(texts))]
         embeds = embeddings.embed_documents(texts)
         index.upsert(vectors=zip(ids, embeds, metadatas))
-        
-        
-def parse(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str, glob: str = GLOB):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
+
+
+def parse(
+    input_filepath: str,
+    output_filepath: str,
+    index_name: str,
+    embeddings_model_name: str,
+    glob: str = GLOB,
+    data_source: str = "Local",
+):
+    """Runs data processing scripts to turn raw data from (../raw) into
+    cleaned data ready to be analyzed (saved in ../processed).
     """
-    logger.info('Making final data set from raw data')
+    logger.info("Making final data set from raw data")
     logger.info(f"Using {embeddings_model_name} to embed documents")
     logger.info(f"Using {index_name} to connect to Pinecone index")
     documents = loadFilesinDirectory(path=input_filepath, glob=glob)
@@ -194,24 +213,34 @@ def parse(input_filepath: str, output_filepath: str, index_name: str, embeddings
     documents.extend(load_CSV(path=input_filepath))
     embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
     index = connect_index(index_name)
-    insert_embedded_documents(documents=documents, embeddings=embeddings, index=index)
-    
+    insert_embedded_documents(documents=documents, embeddings=embeddings, index=index, data_source=data_source)
+
 
 @click.command()
-@click.option('--input_filepath', type=click.Path(exists=True), default=DATA_DIR)
-@click.option('--output_filepath', type=click.Path(), default=DATA_DIR)
-@click.option('--index_name', type=str, default=PINECONE_INDEX_NAME)
-@click.option('--embeddings_model_name', type=str, default=EMBEDDING_MODEL_NAME)
-@click.option('--glob', type=str, default=None)
-def main(input_filepath: str, output_filepath: str, index_name: str, embeddings_model_name: str, glob: str = GLOB):
-    parse(input_filepath=input_filepath, output_filepath=output_filepath, index_name=index_name, embeddings_model_name=embeddings_model_name, glob=glob)
+@click.option("--input_filepath", type=click.Path(exists=True), default=DATA_DIR)
+@click.option("--output_filepath", type=click.Path(), default=DATA_DIR)
+@click.option("--index_name", type=str, default=PINECONE_INDEX_NAME)
+@click.option("--embeddings_model_name", type=str, default=AVAILABLE_EMBEDDINGS["Cohere"])
+@click.option("--glob", type=str, default=None)
+def main(
+    input_filepath: str,
+    output_filepath: str,
+    index_name: str,
+    embeddings_model_name: str,
+    glob: str = GLOB,
+):
+    parse(
+        input_filepath=input_filepath,
+        output_filepath=output_filepath,
+        index_name=index_name,
+        embeddings_model_name=embeddings_model_name,
+        glob=glob,
+    )
 
-        
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     logger.info("Starting embedding process")
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
     parse()
-
-
