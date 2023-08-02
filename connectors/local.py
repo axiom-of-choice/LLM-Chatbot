@@ -21,6 +21,10 @@ class LocalConnector:
         print("Displaying objects in local")
         st.table(self.display_objets_in_local())
 
+    def write(self, obj, file_name):
+        with open(file_name, "w") as f:
+            f.write(obj)
+
 
 if __name__ == "__main__":
     print("Displaying objects in local")

@@ -55,12 +55,12 @@ from autentication.authlib.common import trace_activity
 
 ##TITLE background and logo
 import toml
-from src.utils import set_background, set_logo
+from src.utils import set_background, set_logo, set_background_remote, set_logo_remote
 
 client_config = toml.load(os.path.join(BASE_DIR, "client_config.toml"))
 TITLE = client_config["branding"]["title"]
-set_background(BACKGROUNDS_DIR)
-set_logo(LOGO_DIR)
+set_background_remote(BACKGROUNDS_DIR)
+set_logo_remote(LOGO_DIR)
 
 
 user = auth(sidebar=True, show_msgs=True)

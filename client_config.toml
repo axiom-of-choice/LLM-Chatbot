@@ -1,2 +1,8 @@
+[available_datasources]
+client_datasource = "S3"
+client_datasource_uri = "insightfinder-test"
+
 [branding]
-title = "Test title"
+title = "Just another title"
+background_image_url = "https://insightfinder-test.s3.amazonaws.com/static/background.png"
+logo_url = "https://insightfinder-test.s3.amazonaws.com/static/logo.png"
