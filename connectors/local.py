@@ -1,4 +1,4 @@
-from config.config import DATA_DIR
+from config import DATA_DIR
 import pandas as pd
 import streamlit as st
 

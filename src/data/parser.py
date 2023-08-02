@@ -16,7 +16,7 @@ import tiktoken
 
 import pinecone
 
-from config.config import *
+from config import *
 
 # Recursive searching files
 import glob

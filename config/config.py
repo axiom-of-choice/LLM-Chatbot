@@ -14,6 +14,9 @@ from langchain.embeddings import CohereEmbeddings, HuggingFaceEmbeddings
 
 BASE_DIR = Path(__file__).parent.parent.absolute()
 DATA_DIR = Path(BASE_DIR, "data/")
+STATIC_DIR = Path(BASE_DIR, "static/")
+BACKGROUNDS_DIR = Path(STATIC_DIR, "background.png")
+LOGO_DIR = Path(STATIC_DIR, "logo.png")
 HF_EMBEDDING_MODEL_NAME = os.environ.get("HF_EMBEDDING_MODEL_NAME")
 PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
@@ -36,6 +39,8 @@ AVAILABLE_EMBEDDINGS = {
     "Cohere": CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_EMBEDDING_MODEL_NAME),
     "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(model_name=HF_EMBEDDING_MODEL_NAME),
 }
+
+TITLE = "🤗💬 InsightFinder App"
 
 if __name__ == "__main__":
     print(BASE_DIR)

@@ -8,9 +8,9 @@ from streamlit_extras.colored_header import colored_header
 from streamlit_extras.add_vertical_space import add_vertical_space
 
 st.set_page_config(page_title="InsightFinder - An LLM-powered Streamlit app")
+from streamlit_extras.app_logo import add_logo
 
 ########### Vector DB AND MODEL ############
-import os
 from dotenv import load_dotenv
 
 # from langchain.embeddings import HuggingFaceEmbeddings
@@ -26,6 +26,7 @@ from dotenv import load_dotenv
 # import glob
 # import traceback
 # from random import randint
+from config import *
 
 
 import logging
@@ -53,15 +54,15 @@ from autentication.authlib.auth import auth, authenticated, requires_auth
 from autentication.authlib.common import trace_activity
 
 ##PAGES
-from pages.main_page import main_page
-from pages.admin_console import admin_console
+from src.utils import set_background
 
 
-page_names_to_funcs = {"Main Page": main_page, "Admin console": admin_console}
+set_background("./static/background.png")
+# page_names_to_funcs = {"Main Page": main_page, "Admin console": admin_console}
 
 user = auth(sidebar=True, show_msgs=True)
 with st.sidebar:
-    st.title("🤗💬 InsightFinder App")
+    st.title(TITLE)
     st.markdown(
         """
         ## About
@@ -74,15 +75,13 @@ with st.sidebar:
         """
     )
     add_vertical_space(5)
-    st.write(
-        "Made with ❤️ by [Isaac Hernandez Garcia](https://www.linkedin.com/in/isaac-hernandez-garcia-9905/)"
-    )
-    selected_page = st.sidebar.selectbox("Select a page", page_names_to_funcs.keys())
+    st.write("Made with ❤️ by [Isaac Hernandez Garcia](https://www.linkedin.com/in/isaac-hernandez-garcia-9905/)")
+    selected_page = st.sidebar.selectbox("Select a page", AVAILABLE_PAGES.keys())
 
 
-st.title("Insight Finder App")
+st.title(TITLE)
 if not authenticated():
     st.warning(f"Please log in to access the app")
 #############
 else:
-    page_names_to_funcs[selected_page](user)
+    AVAILABLE_PAGES[selected_page](user)

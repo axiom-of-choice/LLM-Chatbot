@@ -1,7 +1,7 @@
 from pathlib import Path
 import logging
 import sys
-from config.config import LOGS_DIR
+from config import LOGS_DIR
 import logging.config
 
 logging_config = {
@@ -17,7 +17,7 @@ logging_config = {
         "console": {
             "class": "logging.StreamHandler",
             "stream": sys.stdout,
-            "formatter": "detailed", # "minimal", for less verbose output
+            "formatter": "detailed",  # "minimal", for less verbose output
             "level": logging.DEBUG,
         },
         "info": {

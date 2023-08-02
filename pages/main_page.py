@@ -24,7 +24,7 @@ from autentication.authlib.auth import auth
 import os
 from dotenv import load_dotenv
 from langchain.vectorstores import Pinecone
-from config.config import *
+from config import *
 from src.data.cohere_parser import parse
 
 # from src.utils import connect_index
@@ -47,7 +47,6 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 init_pinecone_index()
-# from config.config import AVAILABLE_LLMS
 
 
 def main_page(user):

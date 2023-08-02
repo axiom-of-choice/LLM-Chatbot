@@ -83,9 +83,7 @@ def _auth(sidebar=True, show_msgs=True):
             from ..authlib.repo.storage_factory import StorageFactory
 
             # get the store
-            store = StorageFactory().get_provider(
-                STORAGE, allow_db_create=False, if_table_exists="ignore"
-            )
+            store = StorageFactory().get_provider(STORAGE, allow_db_create=False, if_table_exists="ignore")
             # check the table
             ctx = {"fields": "*", "modifier": "LIMIT 1"}
             store.query(context=ctx)
@@ -123,9 +121,7 @@ def _auth(sidebar=True, show_msgs=True):
             if user and user[const.PASSWORD] == user_in_cookie[const.PASSWORD]:
                 auth_state().user = user
                 auth_state().cf = user[const.CF]
-                set_auth_message(
-                    "Logging in...", type=const.SUCCESS, show_msgs=show_msgs
-                )
+                set_auth_message("Logging in...", type=const.SUCCESS, show_msgs=show_msgs)
                 st.experimental_rerun()
 
         set_auth_message("Please log in", delay=None, show_msgs=True)
@@ -136,18 +132,14 @@ def _auth(sidebar=True, show_msgs=True):
         data = store.query(context=ctx)
         user = data[0] if data else None
         if user:
-            decrypted_password = aes256cbcExtended(ENC_PASSWORD, ENC_NONCE).decrypt(
-                user[const.PASSWORD]
-            )
+            decrypted_password = aes256cbcExtended(ENC_PASSWORD, ENC_NONCE).decrypt(user[const.PASSWORD])
             password = password_widget("Enter password", type="password")
             if password == decrypted_password:
                 # TODO: set active state and other fields then update DB
                 # Update user state, password is encrypted so secure
                 auth_state().user = user
                 auth_state().cf = user[const.CF]
-                set_auth_message(
-                    "Logging in...", type=const.SUCCESS, show_msgs=show_msgs
-                )
+                set_auth_message("Logging in...", type=const.SUCCESS, show_msgs=show_msgs)
                 st.experimental_rerun()
 
     if auth_state().user != None:
@@ -177,7 +169,7 @@ def _auth(sidebar=True, show_msgs=True):
 
 
 def auth(*args, **kwargs):
-    with st.expander("Authentication", expanded=True):
+    with st.expander("Authentication", expanded=False):
         return _auth(*args, **kwargs)
 
 
@@ -197,29 +189,21 @@ def _list_users():
 
 
 @requires_auth
-def _create_user(
-    name=const.BLANK, pwd=const.BLANK, is_su=False, mode="create", cf=const.BLANK
-):
+def _create_user(name=const.BLANK, pwd=const.BLANK, is_su=False, mode="create", cf=const.BLANK):
     st.subheader("Create user")
     username = st.text_input("Enter Username (required)", value=name)
     if mode == "create":
-        password = st.text_input(
-            "Enter Password (required)", value=pwd, type="password"
-        )
+        password = st.text_input("Enter Password (required)", value=pwd, type="password")
         cf = st.text_input("Enter Contet Factory (required)", value=pwd, type="default")
     elif mode == "edit":
         # Do not display password as DB stores them encrypted
         # Passwords will always be created anew in edit mode
-        password = st.text_input(
-            "Enter Replacement Password (required)", value=const.BLANK
-        )
+        password = st.text_input("Enter Replacement Password (required)", value=const.BLANK)
         cf = st.text_input("Enter Replacement for cf (required)", value=const.BLANK)
     su = 1 if st.checkbox("Is this a superuser?", value=is_su) else 0
     if st.button("Update Database") and username:
         if password:  # new password given
-            encrypted_password = aes256cbcExtended(ENC_PASSWORD, ENC_NONCE).encrypt(
-                password
-            )
+            encrypted_password = aes256cbcExtended(ENC_PASSWORD, ENC_NONCE).encrypt(password)
         elif mode == "edit":  # reuse old one
             encrypted_password = pwd
         elif mode == "create":  # Must have a password
@@ -323,9 +307,7 @@ def admin():
         from authlib.repo.storage_factory import StorageFactory
 
         global store
-        store = StorageFactory().get_provider(
-            STORAGE, allow_db_create=True, if_table_exists="ignore"
-        )
+        store = StorageFactory().get_provider(STORAGE, allow_db_create=True, if_table_exists="ignore")
 
         # Fake the admin user token to enable superuser mode (password field isn't required)
         auth_state().user = {"username": "admin", "su": 1}
