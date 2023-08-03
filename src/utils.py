@@ -45,6 +45,21 @@ def set_background(png_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
+def set_background_remote(url):
+    page_bg_img = (
+        """
+    <style>
+    .stApp {
+    background-image: url("%s");
+    background-size: cover;
+    }
+    </style>
+    """
+        % url
+    )
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+
+
 def set_logo(file):
     with open(file, "rb") as f:
         data = base64.b64encode(f.read()).decode("utf-8")
@@ -53,6 +68,17 @@ def set_logo(file):
         f"""
         <div style="display:table;margin-top:-20%;margin-left:20%;">
             <img src="data:image/png;base64,{data}" width="100" height="150">
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def set_logo_remote(url):
+    st.sidebar.markdown(
+        f"""
+        <div style="display:table;margin-top:-20%;margin-left:20%;">
+            <img src="{url}" width="100" height="150">
         </div>
         """,
         unsafe_allow_html=True,

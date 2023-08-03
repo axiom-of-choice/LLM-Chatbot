@@ -17,8 +17,8 @@ import toml
 BASE_DIR = Path(__file__).parent.parent.absolute()
 DATA_DIR = Path(BASE_DIR, "data/")
 STATIC_DIR = Path(BASE_DIR, "static/")
-BACKGROUNDS_DIR = Path(STATIC_DIR, "background.png")
-LOGO_DIR = Path(STATIC_DIR, "logo.png")
+# BACKGROUNDS_DIR = Path(STATIC_DIR, "background.png")
+# LOGO_DIR = Path(STATIC_DIR, "logo.png")
 LOGS_DIR = Path(BASE_DIR, "logs")
 TOML_DIR = os.path.join(BASE_DIR, "client_config.toml")
 
@@ -48,6 +48,10 @@ AVAILABLE_EMBEDDINGS = {
 
 client_config = toml.load(TOML_DIR)
 TITLE = client_config["branding"]["title"]
+BACKGROUNDS_DIR = client_config["branding"]["background_image_url"]
+LOGO_DIR = client_config["branding"]["logo_url"]
+CLIENT_DATASOURCE = client_config["available_datasources"]["client_datasource"]
+CLIENT_DATASOURCE_URI = client_config["available_datasources"]["client_datasource_uri"]
 
 if __name__ == "__main__":
     print(client_config)

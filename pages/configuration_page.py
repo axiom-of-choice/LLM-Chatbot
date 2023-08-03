@@ -9,11 +9,15 @@ import logging.config
 
 logging.config.dictConfig(logging_config)
 logger = logging.getLogger(__name__)
-from config import BACKGROUNDS_DIR, LOGO_DIR, TOML_DIR, client_config
+from config import BACKGROUNDS_DIR, LOGO_DIR, TOML_DIR, client_config, CLIENT_DATASOURCE, CLIENT_DATASOURCE_URI
 from random import randint
-from src.utils import set_background
+from src.utils import set_background_remote
 from PIL import Image
 import toml
+from connectors import DATA_SOURCE
+
+storage = DATA_SOURCE[CLIENT_DATASOURCE]
+storage = storage()
 
 
 def upload_background():
@@ -31,13 +35,15 @@ def upload_background():
             if files is not None:
                 # To read file as bytes:
                 uploaded_file = files.read()
-                with open(BACKGROUNDS_DIR, "wb") as f:
-                    logger.debug(f"Writing background")
-                    f.write(uploaded_file)
-                    logger.debug(f"Writed background")
+                # with open(BACKGROUNDS_DIR, "wb") as f:
+                logger.debug(f"Uploading background")
+                ## TOD): Upload file without dependecy of s3 structure
+                storage.upload_file(uploaded_file, CLIENT_DATASOURCE_URI, "static/background.png")
+                # f.write(uploaded_file)
+                logger.debug(f"Writed background")
             st.write("Background set!")
-        st.session_state["widget_key"] = str(randint(1000, 100000000))
-        set_background(BACKGROUNDS_DIR)
+            st.session_state["widget_key"] = str(randint(1000, 100000000))
+            set_background_remote(BACKGROUNDS_DIR)
 
 
 def add_logo():
@@ -55,14 +61,15 @@ def add_logo():
             if files is not None:
                 # To read file as bytes:
                 uploaded_file = files.read()
-                with open(LOGO_DIR, "wb") as f:
-                    logger.debug(f"Writing logo")
-                    f.write(uploaded_file)
-                with open(LOGO_DIR, "rb") as f:
-                    logger.debug(f"Reading logo to resize")
-                    image = Image.open(f)
-                    image.resize((500, 500)).save(LOGO_DIR)
-                    logger.debug(f"Writed logo")
+                # with open(LOGO_DIR, "wb") as f:
+                logger.debug(f"Writing logo")
+                #    f.write(uploaded_file)
+                # with open(LOGO_DIR, "rb") as f:
+                #    logger.debug(f"Reading logo to resize")
+                #    image = Image.open(f)
+                #    image.resize((500, 500)).save(LOGO_DIR)
+                storage.upload_file(uploaded_file, CLIENT_DATASOURCE_URI, "static/logo.png")
+                logger.debug(f"Writed logo")
 
 
 def change_title():
