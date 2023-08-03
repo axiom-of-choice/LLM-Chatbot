@@ -32,6 +32,11 @@ from src.utils import set_background, set_logo, set_background_remote, set_logo_
 client_config = toml.load(os.path.join(BASE_DIR, "client_config.toml"))
 TITLE = "AS - An LLM-powered Streamlit app"
 
+##PAGEs
+from pages import AVAILABLE_PAGES
+
+main_page = AVAILABLE_PAGES["Main Page"]
+
 
 with st.sidebar:
     st.title("Generative QA LLM-powered Chatbot")

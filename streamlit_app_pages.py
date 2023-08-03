@@ -1,7 +1,3 @@
-"""
-# My first app
-Here's our first attempt at using data to create a table:
-"""
 import streamlit as st
 from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
@@ -12,20 +8,6 @@ from streamlit_extras.app_logo import add_logo
 
 ########### Vector DB AND MODEL ############
 from dotenv import load_dotenv
-
-# from langchain.embeddings import HuggingFaceEmbeddings
-# import pinecone
-# from langchain.vectorstores import Pinecone
-# from langchain.prompts import PromptTemplate
-# from config.config import *
-# from src.data.cohere_parser import parse
-# from src.utils import connect_index
-# from langchain.chains import RetrievalQAWithSourcesChain
-# from langchain.chat_models import ChatOpenAI
-# from langchain.embeddings import CohereEmbeddings
-# import glob
-# import traceback
-# from random import randint
 from config import *
 
 
@@ -61,6 +43,9 @@ client_config = toml.load(os.path.join(BASE_DIR, "client_config.toml"))
 TITLE = client_config["branding"]["title"]
 set_background_remote(BACKGROUNDS_DIR)
 set_logo_remote(LOGO_DIR)
+
+##PAGES
+from pages import AVAILABLE_PAGES
 
 
 user = auth(sidebar=True, show_msgs=True)

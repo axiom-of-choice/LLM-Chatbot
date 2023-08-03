@@ -29,7 +29,7 @@ from config import BACKGROUNDS_DIR, TITLE
 from random import randint
 
 
-def admin_console(user):
+def interface(user):
     if "widget_background_key" not in st.session_state:
         st.session_state["widget_background_key"] = randint(0, 1000000)
     else:
