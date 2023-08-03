@@ -90,9 +90,9 @@ def loadFilesinDirectory(path: str, glob: Optional[str] = None) -> List[Document
     return docs
 
 
-def loadPDFs(path: str, glob: Optional[str] = None) -> List[Document]:
+def loadPDFs(path: str, glob: Optional[str] = "*.pdf") -> List[Document]:
     if glob is None:
-        loader = PyPDFDirectoryLoader(path=path)
+        loader = PyPDFDirectoryLoader(path=path, recursive=True)
         logger.info(f"Loading PDFs from {path} without glob")
     else:
         loader = PyPDFDirectoryLoader(path=path, glob=glob, recursive=True)
@@ -212,7 +212,7 @@ def parse(
     documents.extend(loadPDFs(path=input_filepath))
     documents.extend(load_JSONL(path=input_filepath))
     documents.extend(load_CSV(path=input_filepath))
-    embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_MODEL_NAME)
+    embeddings = AVAILABLE_EMBEDDINGS[embeddings_model_name]
     index = connect_index(index_name)
     insert_embedded_documents(documents=documents, embeddings=embeddings, index=index, data_source=data_source)
 
@@ -221,7 +221,7 @@ def parse(
 @click.option("--input_filepath", type=click.Path(exists=True), default=DATA_DIR)
 @click.option("--output_filepath", type=click.Path(), default=DATA_DIR)
 @click.option("--index_name", type=str, default=PINECONE_INDEX_NAME)
-@click.option("--embeddings_model_name", type=str, default=AVAILABLE_EMBEDDINGS["Cohere"])
+@click.option("--embeddings_model_name", type=str, default="Cohere")
 @click.option("--glob", type=str, default=None)
 def main(
     input_filepath: str,
@@ -248,6 +248,6 @@ if __name__ == "__main__":
         input_filepath=DATA_DIR,
         output_filepath=DATA_DIR,
         index_name=PINECONE_INDEX_NAME,
-        embeddings_model_name=AVAILABLE_EMBEDDINGS["stsb-xlm-r-multilingual"],
+        embeddings_model_name="stsb-xlm-r-multilingual",
         glob=GLOB,
     )
