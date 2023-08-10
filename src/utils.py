@@ -6,6 +6,7 @@ import streamlit as st
 logger = logging.getLogger(__name__)
 
 
+@st.experimental_singleton
 def connect_index(index_name: str, API_KEY: str = PINECONE_API_KEY, ENV: str = PINECONE_ENV) -> pinecone.Index:
     pinecone.init(api_key=API_KEY, environment=ENV)
     index = pinecone.Index(index_name)
@@ -13,6 +14,7 @@ def connect_index(index_name: str, API_KEY: str = PINECONE_API_KEY, ENV: str = P
     return index
 
 
+@st.experimental_singleton
 def init_pinecone_index(api_key: str = PINECONE_API_KEY, environment: str = PINECONE_ENV) -> None:
     pinecone.init(api_key=api_key, environment=environment)
     logger.info("Pinecone initialized")
