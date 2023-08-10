@@ -66,8 +66,8 @@ def tiktoken_len(text: str) -> int:
 
 
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=600,
-    chunk_overlap=20,
+    chunk_size=400,
+    chunk_overlap=5,
     length_function=tiktoken_len,
     separators=["\n\n", "\n", " ", ""],
 )
@@ -244,10 +244,10 @@ if __name__ == "__main__":
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
-    parse(
-        input_filepath=DATA_DIR,
-        output_filepath=DATA_DIR,
-        index_name=PINECONE_INDEX_NAME,
-        embeddings_model_name="stsb-xlm-r-multilingual",
-        glob=GLOB,
+    main(
+        # input_filepath=DATA_DIR,
+        # output_filepath=DATA_DIR,
+        # index_name=PINECONE_INDEX_NAME,
+        # embeddings_model_name="Cohere",
+        # glob=GLOB,
     )

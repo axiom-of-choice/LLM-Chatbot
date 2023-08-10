@@ -5,10 +5,11 @@ from dotenv import load_dotenv
 load_dotenv()
 import logging
 import sys
+import json
 from langchain.chat_models import ChatOpenAI
-from langchain.llms import Cohere, OpenAIChat
+from langchain.llms import Cohere, OpenAIChat, SagemakerEndpoint
 from langchain.embeddings import CohereEmbeddings, HuggingFaceEmbeddings
-
+from langchain.llms.sagemaker_endpoint import LLMContentHandler
 import toml
 
 ## TO-DO replace from langchain.chat_models import ChatOpenAI
@@ -34,11 +35,35 @@ BUCKET_NAME = os.environ.get("BUCKET_NAME")
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
 COHERE_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
 COHERE_EMBEDDING_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
+endpoint_name = os.environ.get("SAGEMAKER_ENDPOINT_NAME")
+region = os.environ.get("AWS_REGION")
+
+
+class ContentHandler(LLMContentHandler):
+    content_type = "application/json"
+    accepts = "application/json"
+
+    def transform_input(self, prompt: str, model_kwargs: dict) -> bytes:
+        input_str = json.dumps({"inputs": prompt, "parameters": {**model_kwargs}})
+        return input_str.encode("utf-8")
+
+    def transform_output(self, output: bytes) -> str:
+        response_json = json.loads(output.read().decode("utf-8"))
+        return response_json[0]["generated_text"]
+
 
 # MODEL CATALOG
 AVAILABLE_LLMS = {
     "GPT 3.5 turbo": ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.0),
     "Cohere LLM": Cohere(cohere_api_key=COHERE_API_KEY, temperature=0.0, truncate="START"),
+    "Falcon 7b": SagemakerEndpoint(
+        endpoint_name=endpoint_name,
+        region_name=region,
+        model_kwargs={"max_new_tokens": 500, "top_p": 0.9, "max_length": None, "temperature": 1e-10},
+        endpoint_kwargs={"CustomAttributes": "accept_eula=true"},
+        content_handler=ContentHandler(),
+        credentials_profile_name="fundamentl-ai",
+    ),
 }
 
 AVAILABLE_EMBEDDINGS = {
