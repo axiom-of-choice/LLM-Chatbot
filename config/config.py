@@ -11,6 +11,7 @@ from langchain.llms import Cohere, OpenAIChat, SagemakerEndpoint
 from langchain.embeddings import CohereEmbeddings, HuggingFaceEmbeddings
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 import toml
+from src.models.HuggingFaceEmbeddings import InferenceEndpointHuggingFaceEmbeddings
 
 ## TO-DO replace from langchain.chat_models import ChatOpenAI
 
@@ -35,6 +36,9 @@ BUCKET_NAME = os.environ.get("BUCKET_NAME")
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
 COHERE_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
 COHERE_EMBEDDING_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
+
+HF_EMBEDDING_ENDPOINT = os.environ.get("HF_EMBEDDING_ENDPOINT")
+HF_EMBEDDING_API_KEY = os.environ.get("HF_EMBEDDING_API_KEY")
 endpoint_name = os.environ.get("SAGEMAKER_ENDPOINT_NAME")
 region = os.environ.get("AWS_REGION")
 
@@ -69,6 +73,9 @@ AVAILABLE_LLMS = {
 AVAILABLE_EMBEDDINGS = {
     "Cohere": CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_EMBEDDING_MODEL_NAME),
     "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(model_name=HF_EMBEDDING_MODEL_NAME),
+    "self_hosted_stsb-xlm-r-multilingual": InferenceEndpointHuggingFaceEmbeddings(
+        HF_EMBEDDING_ENDPOINT, HF_EMBEDDING_API_KEY
+    ),
 }
 
 client_config = toml.load(TOML_DIR)
@@ -77,6 +84,8 @@ BACKGROUNDS_DIR = client_config["branding"]["background_image_url"]
 LOGO_DIR = client_config["branding"]["logo_url"]
 CLIENT_DATASOURCE = client_config["available_datasources"]["client_datasource"]
 CLIENT_DATASOURCE_URI = client_config["available_datasources"]["client_datasource_uri"]
+HUGGING_FACE_EMBEDDINGS_ENDPOINT = client_config["Embedding_Models"]["hugging_face_endpoint"]
+HUGGING_FACE_API_TOKEN = client_config["Embedding_Models"]["hugging_face_api_token"]
 
 if __name__ == "__main__":
     print(client_config)
