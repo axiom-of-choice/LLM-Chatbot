@@ -1,7 +1,10 @@
 from pathlib import Path
 import logging
 import sys
-from config import LOGS_DIR
+
+BASE_DIR = Path(__file__).parent.absolute()
+print(BASE_DIR)
+LOGS_DIR = Path(BASE_DIR, "logs")
 import logging.config
 
 logging_config = {

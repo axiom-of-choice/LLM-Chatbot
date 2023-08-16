@@ -5,7 +5,7 @@ from tqdm.auto import tqdm
 from uuid import uuid4
 from typing import List, Dict, Tuple, Optional, Any
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter, TokenTextSplitter
 
 
 from langchain.schema import Document
@@ -66,11 +66,15 @@ def tiktoken_len(text: str) -> int:
 
 
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=400,
+    chunk_size=800,
     chunk_overlap=5,
     length_function=tiktoken_len,
     separators=["\n\n", "\n", " ", ""],
 )
+
+text_splitter_tokens = TokenTextSplitter(
+    chunk_size=1000, chunk_overlap=10, encoding_name="cl100k_base"
+)  # This the encoding for text-embedding-ada-002
 
 
 def loadFilesinDirectory(path: str, glob: Optional[str] = None) -> List[Document]:

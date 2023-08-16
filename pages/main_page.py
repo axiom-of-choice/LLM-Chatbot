@@ -74,7 +74,7 @@ def get_text():
 
 
 # Upload file to data source and parse it
-def upload_file(temp_data):
+def upload_file(temp_data, embeddings):
     selected_data_source = st.selectbox(label="Storage", options=DATA_SOURCE.keys())
     files = st.file_uploader(
         "Choose a file, a storage to upload and ask a question about it:",
@@ -102,7 +102,7 @@ def upload_file(temp_data):
                     temp_data,
                     output_filepath=None,
                     index_name=PINECONE_INDEX_NAME,
-                    embeddings_model_name=COHERE_MODEL_NAME,
+                    embeddings_model_name=embeddings,
                     glob=GLOB,
                     data_source=selected_data_source,
                 )
@@ -151,6 +151,7 @@ def interface(user):
         llm=llm,
         chain_type="stuff",
         retriever=vectorstore.as_retriever(kwargs={"filter": {"cf": {"$in": cf}}}),
+        return_source_documents=True,
     )
     ########### Vector DB AND MODEL ############
     ###SESSION STATE###
@@ -169,7 +170,7 @@ def interface(user):
     else:
         st.session_state["past"] = st.session_state["past"]
     with st.form("my-form", clear_on_submit=True):
-        upload_file(temp_data)
+        upload_file(temp_data, embeddings)
 
     input_container = st.container()
     colored_header(label="", description="", color_name="blue-30")
