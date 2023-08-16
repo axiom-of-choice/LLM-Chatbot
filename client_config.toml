@@ -13,4 +13,5 @@ sagemaker_region = "us-east-1"
 
 [Embedding_Models]
 hugging_face_endpoint = "https://bhjj98lm82dvt2bd.eastus.azure.endpoints.huggingface.cloud"
+hugging_face_endpoint_qa = "https://aet52zbntx9zffq4.us-east-1.aws.endpoints.huggingface.cloud"
 hugging_face_api_token = "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"

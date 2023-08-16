@@ -7,7 +7,7 @@ import logging
 import sys
 import json
 from langchain.chat_models import ChatOpenAI
-from langchain.llms import Cohere, OpenAIChat, SagemakerEndpoint
+from langchain.llms import Cohere, OpenAIChat, SagemakerEndpoint, HuggingFaceEndpoint
 from langchain.embeddings import CohereEmbeddings, HuggingFaceEmbeddings
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 import toml
@@ -39,6 +39,8 @@ COHERE_EMBEDDING_MODEL_NAME = os.environ.get("COHERE_EMBEDDING_MODEL_NAME")
 
 HF_EMBEDDING_ENDPOINT = os.environ.get("HF_EMBEDDING_ENDPOINT")
 HF_EMBEDDING_API_KEY = os.environ.get("HF_EMBEDDING_API_KEY")
+HF_EMBEDDING_ENDPOINT_QA = os.environ.get("HF_EMBEDDING_ENDPOINT_QA")
+HF_FALCON_ENDPOINT = os.environ.get("HF_FALCON_ENDPOINT")
 endpoint_name = os.environ.get("SAGEMAKER_ENDPOINT_NAME")
 region = os.environ.get("AWS_REGION")
 
@@ -60,14 +62,17 @@ class ContentHandler(LLMContentHandler):
 AVAILABLE_LLMS = {
     "GPT 3.5 turbo": ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.0),
     "Cohere LLM": Cohere(cohere_api_key=COHERE_API_KEY, temperature=0.0, truncate="START"),
-    "Falcon 7b": SagemakerEndpoint(
-        endpoint_name=endpoint_name,
-        region_name=region,
-        model_kwargs={"max_new_tokens": 500, "top_p": 0.9, "max_length": None, "temperature": 1e-10},
-        endpoint_kwargs={"CustomAttributes": "accept_eula=true"},
-        content_handler=ContentHandler(),
-        credentials_profile_name="fundamentl-ai",
-    ),
+    "Falcon 7b": HuggingFaceEndpoint(
+        endpoint_url=HF_FALCON_ENDPOINT, task="text-generation", huggingfacehub_api_token=HF_EMBEDDING_API_KEY
+    )
+    # SagemakerEndpoint(
+    # endpoint_name=endpoint_name,
+    # region_name=region,
+    # model_kwargs={"max_new_tokens": 500, "top_p": 0.9, "max_length": None, "temperature": 1e-10},
+    # endpoint_kwargs={"CustomAttributes": "accept_eula=true"},
+    # content_handler=ContentHandler(),
+    # credentials_profile_name="fundamentl-ai",
+    # ),
 }
 
 AVAILABLE_EMBEDDINGS = {
@@ -76,6 +81,7 @@ AVAILABLE_EMBEDDINGS = {
     "self_hosted_stsb-xlm-r-multilingual": InferenceEndpointHuggingFaceEmbeddings(
         HF_EMBEDDING_ENDPOINT, HF_EMBEDDING_API_KEY
     ),
+    "self_hosted_multi_qa": InferenceEndpointHuggingFaceEmbeddings(HF_EMBEDDING_ENDPOINT_QA, HF_EMBEDDING_API_KEY),
 }
 
 client_config = toml.load(TOML_DIR)
