@@ -24,21 +24,27 @@ Project Organization
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   └── raw            <- The original, immutable data dump.
     │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
+    ├──connectors          <- Data Connectors to external sources
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details (WIP)
+    │
+    ├── logs                  <- Logs folder for storing the logs into the deployment
+    │
+    ├── models             <- Trained and serialized models, model predictions, or model summaries (WIP)
     │
     ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
     │                         the creator's initials, and a short `-` delimited description, e.g.
     │                         `1.0-jqp-initial-data-exploration`.
     │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
+    ├── references         <- Data dictionaries, manuals, and all other explanatory materials. (WIP)
     │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
+    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc. (WIP)
     │   └── figures        <- Generated graphics and figures to be used in reporting
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
+    │
+    ├── static             <- Static files to be used inside the app
     │
     ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
     ├── src                <- Source code for use in this project.
@@ -46,10 +52,8 @@ Project Organization
     │   │
     │   ├── data           <- Scripts to download or generate data
     │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
+    │   │    └── parser.py Parser for files
+    │   │  
     │   ├── models         <- Scripts to train models and then use trained models to make
     │   │   │                 predictions
     │   │   ├── predict_model.py
