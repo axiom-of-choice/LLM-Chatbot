@@ -77,7 +77,7 @@ AVAILABLE_LLMS = {
 
 AVAILABLE_EMBEDDINGS = {
     "Cohere": CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_EMBEDDING_MODEL_NAME),
-    "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(model_name=HF_EMBEDDING_MODEL_NAME),
+    # "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(model_name=HF_EMBEDDING_MODEL_NAME),
     "self_hosted_stsb-xlm-r-multilingual": InferenceEndpointHuggingFaceEmbeddings(
         HF_EMBEDDING_ENDPOINT, HF_EMBEDDING_API_KEY
     ),
