@@ -7,7 +7,7 @@ from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
 from streamlit_extras.add_vertical_space import add_vertical_space
 
-st.set_page_config(page_title="InsightFinder - An LLM-powered Streamlit app")
+st.set_page_config(page_title="AS - An LLM-powered Streamlit app")
 from streamlit_extras.app_logo import add_logo
 
 ########### Vector DB AND MODEL ############
@@ -27,7 +27,6 @@ load_dotenv()
 
 ##TITLE background and logo
 import toml
-from src.utils import set_background, set_logo, set_background_remote, set_logo_remote
 
 client_config = toml.load(os.path.join(BASE_DIR, "client_config.toml"))
 TITLE = "AS - An LLM-powered Streamlit app"

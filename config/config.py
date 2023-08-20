@@ -3,8 +3,6 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-import logging
-import sys
 import json
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import Cohere, OpenAIChat, SagemakerEndpoint, HuggingFaceEndpoint
@@ -62,9 +60,9 @@ class ContentHandler(LLMContentHandler):
 AVAILABLE_LLMS = {
     "GPT 3.5 turbo": ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.0),
     "Cohere LLM": Cohere(cohere_api_key=COHERE_API_KEY, temperature=0.0, truncate="START"),
-    "Falcon 7b": HuggingFaceEndpoint(
-        endpoint_url=HF_FALCON_ENDPOINT, task="text-generation", huggingfacehub_api_token=HF_EMBEDDING_API_KEY
-    )
+    # "Falcon 7b": HuggingFaceEndpoint(
+    #     endpoint_url=HF_FALCON_ENDPOINT, task="text-generation", huggingfacehub_api_token=HF_EMBEDDING_API_KEY
+    # )
     # SagemakerEndpoint(
     # endpoint_name=endpoint_name,
     # region_name=region,
@@ -77,11 +75,11 @@ AVAILABLE_LLMS = {
 
 AVAILABLE_EMBEDDINGS = {
     "Cohere": CohereEmbeddings(cohere_api_key=COHERE_API_KEY, model=COHERE_EMBEDDING_MODEL_NAME),
-    "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(model_name=HF_EMBEDDING_MODEL_NAME),
-    "self_hosted_stsb-xlm-r-multilingual": InferenceEndpointHuggingFaceEmbeddings(
-        HF_EMBEDDING_ENDPOINT, HF_EMBEDDING_API_KEY
-    ),
-    "self_hosted_multi_qa": InferenceEndpointHuggingFaceEmbeddings(HF_EMBEDDING_ENDPOINT_QA, HF_EMBEDDING_API_KEY),
+    # "stsb-xlm-r-multilingual": HuggingFaceEmbeddings(model_name=HF_EMBEDDING_MODEL_NAME),
+    # "self_hosted_stsb-xlm-r-multilingual": InferenceEndpointHuggingFaceEmbeddings(
+    #     HF_EMBEDDING_ENDPOINT, HF_EMBEDDING_API_KEY
+    # ),
+    # "self_hosted_multi_qa": InferenceEndpointHuggingFaceEmbeddings(HF_EMBEDDING_ENDPOINT_QA, HF_EMBEDDING_API_KEY),
 }
 
 client_config = toml.load(TOML_DIR)
