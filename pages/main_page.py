@@ -75,9 +75,9 @@ def get_text():
 
 # Upload file to data source and parse it
 def upload_file(temp_data, embeddings):
-    selected_data_source = st.selectbox(label="Storage", options=DATA_SOURCE.keys())
+    # selected_data_source = st.selectbox(label="Storage", options=DATA_SOURCE.keys())
     files = st.file_uploader(
-        "Choose a file, a storage to upload and ask a question about it:",
+        "Choose a file to upload and ask a question about it:",
         key=st.session_state["widget_key"],
         accept_multiple_files=True,
         kwargs={"clear_on_submit": True},
@@ -104,10 +104,10 @@ def upload_file(temp_data, embeddings):
                     index_name=PINECONE_INDEX_NAME,
                     embeddings_model_name=embeddings,
                     glob=GLOB,
-                    data_source=selected_data_source,
+                    # data_source=selected_data_source,
                 )
-                storage = DATA_SOURCE[selected_data_source]()
-                storage.upload_multiple_files(temp_data, bucket_name=BUCKET_NAME)
+                # storage = DATA_SOURCE[selected_data_source]()
+                # storage.upload_multiple_files(temp_data, bucket_name=BUCKET_NAME)
             except:
                 st.error("Error parsing files")
                 logger.error("Error parsing files")
