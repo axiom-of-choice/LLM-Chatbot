@@ -5,7 +5,7 @@ This project aims to build an MVP to solve the following problem statement:
 
 **Build a Chatbot to perform Generative QA with indexed documents in a vector database as knowledge base**
 
-Solution: https://abinvenv-sol-cohere-fejc6e7l7j.streamlit.app
+https://llm-chatbot-rbjv6s9pz7kcjrjwd4clwm.streamlit.app
 
 Example of usage: How can i estimate rainfall?
 
