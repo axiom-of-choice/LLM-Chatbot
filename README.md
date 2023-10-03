@@ -16,7 +16,7 @@ Project Organization
 ------------
 
     ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
+    ├── Makefile           <- WIP
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
     │   ├── external       <- Data from third party sources.
@@ -26,9 +26,15 @@ Project Organization
     │
     ├──connectors          <- Data Connectors to external sources
     │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details (WIP)
+    ├── docs               <- WIP
     │
-    ├── logs                  <- Logs folder for storing the logs into the deployment
+    ├── authentication     <- Authentication implementation for streamlit appication
+    │
+    ├── pages              <- Pages of the streamlit application 
+    │
+    ├── config             <- Configuration file
+    │
+    ├── logs               <- WIP
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries (WIP)
     │
@@ -38,10 +44,10 @@ Project Organization
     │
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials. (WIP)
     │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc. (WIP)
-    │   └── figures        <- Generated graphics and figures to be used in reporting
+    ├── reports            <- WIP
+    │   └── figures        <- WIP
     │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
+    ├── requirements.txt (requirements_dev.txt)   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
     │
     ├── static             <- Static files to be used inside the app
@@ -61,6 +67,16 @@ Project Organization
     │   │
     │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
     │       └── visualize.py
+    │
+    ├── client_config.toml <- Customizable file for client
+    │
+    ├── settings.py        <- File for setting paths
+    │
+    ├── streamlit_app.py   <- Streamlit applicatin base
+    │
+    ├── streamlit_app_pages.py <- Streamlit application splitted into pages
+    │
+    ├── test_environment.py <- WIP
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
 
