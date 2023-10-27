@@ -65,3 +65,7 @@ tomli
 
 
 xformers
+
+## torch dependencies
+torch
+torchvision
