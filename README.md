@@ -1,4 +1,4 @@
-abinbev-llm
+Chatbot powered by an llm
 ==============================
 
 This project aims to build an MVP to solve the following problem statement:
